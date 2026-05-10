@@ -476,8 +476,9 @@ def predict_from_race_row(row: dict) -> dict:
 
 
 if __name__ == "__main__":
-    import pandas as pd
-    df  = pd.read_csv("data/raw/val.csv")
+    from src.preprocessing import load_race
+    # load validation (will accept data/raw/val.csv or data/raw/dev.csv)
+    df = load_race("val")
     row = df.iloc[0].to_dict()
     result = predict_from_race_row(row)
 

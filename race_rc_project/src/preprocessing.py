@@ -50,6 +50,17 @@ def clean_text(text: str) -> str:
 def load_race(split: str) -> pd.DataFrame:
     """Load train / val / test CSV and add 'answer_idx' column."""
     path = os.path.join(RAW_DIR, f"{split}.csv")
+    # Allow 'dev.csv' as an alternative name for the validation split
+    if not os.path.exists(path):
+        if split == "val":
+            alt = os.path.join(RAW_DIR, "dev.csv")
+            if os.path.exists(alt):
+                path = alt
+    # if still missing, raise helpful error
+    if not os.path.exists(path):
+        raise FileNotFoundError(
+            f"Could not find dataset file for split '{split}'. Tried: {os.path.join(RAW_DIR,f'{split}.csv')}"
+        )
     df = pd.read_csv(path)
     df.columns = [c.strip() for c in df.columns]
     df["answer_idx"] = df["answer"].map(ANSWER_MAP)
