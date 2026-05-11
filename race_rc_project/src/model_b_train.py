@@ -57,6 +57,22 @@ def load_ckpt(name):
     print(f"  [checkpoint] Loaded ← {_ckpt_path(name)}")
     return obj
 
+
+def _convert_to_python_types(obj):
+    """Recursively convert numpy types to native Python types for JSON serialization."""
+    if isinstance(obj, np.ndarray):
+        return obj.tolist()
+    elif isinstance(obj, np.integer):
+        return int(obj)
+    elif isinstance(obj, np.floating):
+        return float(obj)
+    elif isinstance(obj, dict):
+        return {k: _convert_to_python_types(v) for k, v in obj.items()}
+    elif isinstance(obj, (list, tuple)):
+        return [_convert_to_python_types(item) for item in obj]
+    return obj
+
+
 # ── Load vectorizers ───────────────────────────────────────────────────────────
 print("Loading OHE vectorizer (primary)...")
 ohe_vec = joblib.load("models/ohe_vectorizer.pkl")
@@ -338,6 +354,7 @@ if __name__ == "__main__":
     joblib.dump(hs_bundle, os.path.join(MODELS_DIR, "hint_scorer.pkl"))
 
     # ── Save results ───────────────────────────────────────────────────────────
+    results = _convert_to_python_types(results)
     with open(os.path.join(MODELS_DIR, "results.json"), "w") as f:
         json.dump(results, f, indent=2)
 

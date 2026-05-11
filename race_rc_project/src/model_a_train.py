@@ -65,6 +65,22 @@ def load_ckpt(name: str):
     print(f"  [checkpoint] Loaded ← {_ckpt_path(name)}")
     return obj
 
+
+def _convert_to_python_types(obj):
+    """Recursively convert numpy types to native Python types for JSON serialization."""
+    if isinstance(obj, np.ndarray):
+        return obj.tolist()
+    elif isinstance(obj, np.integer):
+        return int(obj)
+    elif isinstance(obj, np.floating):
+        return float(obj)
+    elif isinstance(obj, dict):
+        return {k: _convert_to_python_types(v) for k, v in obj.items()}
+    elif isinstance(obj, (list, tuple)):
+        return [_convert_to_python_types(item) for item in obj]
+    return obj
+
+
 # ── Load OHE feature matrices ──────────────────────────────────────────────────
 print("Loading OHE feature matrices...")
 X_train = np.load(os.path.join(PROC_DIR, "X_train_ohe.npy"),
@@ -333,6 +349,7 @@ if qr_bundle:
 
 
 # ── Save results summary ───────────────────────────────────────────────────────
+results = _convert_to_python_types(results)
 with open(os.path.join(MODELS_DIR, "results.json"), "w") as f:
     json.dump(results, f, indent=2)
 
