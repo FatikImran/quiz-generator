@@ -25,6 +25,11 @@ import joblib
 import warnings
 warnings.filterwarnings("ignore")
 
+# Ensure repo root is in sys.path for imports to work when run via subprocess
+repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if repo_root not in sys.path:
+    sys.path.insert(0, repo_root)
+
 from sklearn.linear_model    import LogisticRegression
 from sklearn.svm             import LinearSVC
 from sklearn.calibration     import CalibratedClassifierCV
