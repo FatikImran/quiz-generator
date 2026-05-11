@@ -32,13 +32,9 @@ _LOADED = {}
 def _load_models(base="models"):
     """loads all saved pkl files. will fail if train_all hasn't bin ran."""
     global _LOADED
-    # Check if all required keys are present; if so, return cached
-    required_keys = {"ohe_vec", "ensemble", "distractor", "hint", "question_ranker"}
-    if _LOADED and required_keys.issubset(_LOADED.keys()):
+    if _LOADED:
         return _LOADED
 
-    # Reset and reload to ensure all keys are present
-    _LOADED.clear()
     base = "models"
     ma   = os.path.join(base, "model_a")
     mb   = os.path.join(base, "model_b")
@@ -153,8 +149,8 @@ def generate_question(article: str) -> dict:
     """
     t0 = time.time()
     m  = _load_models()
-    vec = m.get("ohe_vec")
-    qr  = m.get("question_ranker")  # may be None
+    vec = m["ohe_vec"]
+    qr  = m["question_ranker"]  # may be None
 
     sentences = re.split(r"(?<=[.!?])\s+", article.strip())
     sentences = [s.strip() for s in sentences if 5 <= len(s.split()) <= 40]
@@ -243,18 +239,16 @@ def verify_answer(article: str, question: str, options: dict) -> dict:
     """
     t0     = time.time()
     m      = _load_models()
-    vec    = m.get("ohe_vec")    # OHE is the primary feature vectorizer
-    bundle = m.get("ensemble")
-    if not bundle:
-        raise RuntimeError("Model ensemble not loaded. Run training first.")
+    vec    = m["ohe_vec"]    # OHE is the primary feature vectorizer
+    bundle = m["ensemble"]
 
-    scaler_lr  = bundle.get("scaler_lr")
-    lr         = bundle.get("lr")
-    scaler_svm = bundle.get("scaler_svm")
-    svm        = bundle.get("svm")
-    scaler_nb  = bundle.get("scaler_nb")
-    nb         = bundle.get("nb")
-    rf         = bundle.get("rf")
+    scaler_lr  = bundle["scaler_lr"]
+    lr         = bundle["lr"]
+    scaler_svm = bundle["scaler_svm"]
+    svm        = bundle["svm"]
+    scaler_nb  = bundle["scaler_nb"]
+    nb         = bundle["nb"]
+    rf         = bundle["rf"]
 
     labels    = ["A", "B", "C", "D"]
     probs_all = np.zeros((4, 2), dtype=np.float32)
@@ -286,12 +280,10 @@ def generate_distractors(article: str, question: str, correct_answer: str,
     using OHE-based cosine similarity features.
     """
     m      = _load_models()
-    vec    = m.get("ohe_vec")
-    bundle = m.get("distractor")
-    if not bundle:
-        return []  # No distractor model available
-    model  = bundle.get("model")
-    scaler = bundle.get("scaler")
+    vec    = m["ohe_vec"]
+    bundle = m["distractor"]
+    model  = bundle["model"]
+    scaler = bundle["scaler"]
 
     sentences = re.split(r"(?<=[.!?])\s+", article.strip())
     sentences = [s.strip() for s in sentences if 5 <= len(s.split()) <= 40]
@@ -378,12 +370,10 @@ def generate_hints(article: str, question: str, correct_answer: str) -> list:
     Returns 3 graduated hints (most general → near-explicit) using OHE scoring.
     """
     m      = _load_models()
-    vec    = m.get("ohe_vec")
-    bundle = m.get("hint")
-    if not bundle:
-        return []  # No hint model available
-    model  = bundle.get("model")
-    scaler = bundle.get("scaler")
+    vec    = m["ohe_vec"]
+    bundle = m["hint"]
+    model  = bundle["model"]
+    scaler = bundle["scaler"]
 
     sentences = re.split(r"(?<=[.!?])\s+", article.strip())
     sentences = [s.strip() for s in sentences if len(s.split()) > 4]
