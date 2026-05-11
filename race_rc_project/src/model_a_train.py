@@ -41,6 +41,7 @@ from sklearn.preprocessing   import StandardScaler, MinMaxScaler
 from sklearn.metrics         import (accuracy_score, f1_score,
                                      classification_report,
                                      confusion_matrix, silhouette_score)
+from tqdm import tqdm
 
 PROC_DIR   = "data/processed"
 MODELS_DIR = "models/model_a"
