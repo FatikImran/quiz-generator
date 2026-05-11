@@ -19,6 +19,7 @@ import pandas as pd
 import joblib
 import warnings
 warnings.filterwarnings("ignore")
+import sys
 
 # Ensure repo root is in sys.path for imports to work when run via subprocess
 repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
