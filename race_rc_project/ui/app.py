@@ -23,7 +23,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 # ── Page config ───────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="RACE RC Quiz System",
-    page_icon="🧠",
+    page_icon="RC",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -153,20 +153,20 @@ def run_full_inference(row_dict: dict) -> dict:
 
 # ── Sidebar navigation ─────────────────────────────────────────────────────────
 with st.sidebar:
-    st.markdown("### 🧠 RACE RC System")
+    st.markdown("### RACE RC System")
     st.markdown("*Intelligent Quiz Generation & Verification*")
     st.divider()
 
     screen = st.radio(
         "Navigate",
-        ["📄 Article Input", "📝 Quiz View", "💡 Hint Panel", "📊 Analytics"],
+        ["Article Input", "Quiz View", "Hint Panel", "Analytics"],
         key="nav_radio",
     )
     screen_map = {
-        "📄 Article Input": "article_input",
-        "📝 Quiz View":     "quiz_view",
-        "💡 Hint Panel":    "hint_panel",
-        "📊 Analytics":     "analytics",
+        "Article Input": "article_input",
+        "Quiz View":     "quiz_view",
+        "Hint Panel":    "hint_panel",
+        "Analytics":     "analytics",
     }
     st.session_state.current_screen = screen_map[screen]
 
@@ -181,10 +181,10 @@ with st.sidebar:
 
     st.divider()
     if not models_ok:
-        st.warning(f"⚠️ Demo mode\n\n`python src/train_all.py`\n\n"
+        st.warning(f"Demo mode\n\n`python src/train_all.py`\n\n"
                    f"Error: {inf.get('error','unknown')[:80]}")
 
-    if st.button("🔄 Reset Session", use_container_width=True):
+    if st.button("Reset Session", use_container_width=True):
         for k, v in defaults.items():
             st.session_state[k] = v
         st.rerun()
@@ -196,7 +196,7 @@ with st.sidebar:
 if st.session_state.current_screen == "article_input":
     st.markdown("""
     <div class="main-header">
-        <h2>📄 Article Input</h2>
+        <h2>Article Input</h2>
         <p>Paste a reading passage or load a random RACE sample.
            Model A will <strong>generate</strong> a question and <strong>verify</strong> answers.
            Model B will generate distractors and hints.</p>
@@ -224,7 +224,7 @@ if st.session_state.current_screen == "article_input":
     st.markdown("##### Or load from included dataset:")
     col_btn, col_toggle = st.columns([2, 1])
     with col_btn:
-        if st.button("🎲 Load Random RACE Sample", type="secondary",
+        if st.button("Load Random RACE Sample", type="secondary",
                      use_container_width=True):
             race_df = load_race_sample()
             if race_df is not None:
@@ -303,7 +303,7 @@ if st.session_state.current_screen == "article_input":
     st.divider()
 
     # ── Submit ─────────────────────────────────────────────────────────────────
-    if st.button("🚀 Submit — Run Model A & Model B", type="primary",
+    if st.button("Submit - Run Model A & Model B", type="primary",
                  use_container_width=True):
         article = st.session_state.article.strip()
         options = st.session_state.options
@@ -346,13 +346,13 @@ if st.session_state.current_screen == "article_input":
             # Show generated question preview
             if st.session_state.use_generated_q:
                 st.success(
-                    f"✅ Inference complete!\n\n"
-                    f"**AI-Generated Question** ({gen_q_data['method']}):\n\n"
+                    f"Inference complete!\n\n"
+                    f"AI-Generated Question ({gen_q_data['method']}):\n\n"
                     f"> {gen_q_data['question']}\n\n"
                     f"Navigate to **Quiz View** to answer."
                 )
             else:
-                st.success("✅ Inference complete! Navigate to **Quiz View** →")
+                st.success("Inference complete! Navigate to Quiz View.")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -361,7 +361,7 @@ if st.session_state.current_screen == "article_input":
 elif st.session_state.current_screen == "quiz_view":
     st.markdown("""
     <div class="main-header">
-        <h2>📝 Quiz View</h2>
+        <h2>Quiz View</h2>
         <p>Answer the question — Model A (OHE ensemble) verifies your response.</p>
     </div>
     """, unsafe_allow_html=True)
@@ -378,18 +378,18 @@ elif st.session_state.current_screen == "quiz_view":
         # Badge showing question source
         src = st.session_state.question_source
         if src == "generated":
-            st.markdown('<span class="ai-badge">🤖 AI-Generated Question (Model A)</span>',
+            st.markdown('<span class="ai-badge">AI-Generated Question (Model A)</span>',
                         unsafe_allow_html=True)
         elif src == "race_original":
-            st.markdown('<span class="ai-badge">📚 RACE Original Question</span>',
+            st.markdown('<span class="ai-badge">RACE Original Question</span>',
                         unsafe_allow_html=True)
 
-        st.subheader(f"❓ {st.session_state.question}")
+        st.subheader(f"Question: {st.session_state.question}")
 
         # Show generated question alternatives
         gen_data = st.session_state.generated_question_data
         if gen_data and gen_data.get("candidates"):
-            with st.expander("💡 Other AI-generated question candidates (Model A)"):
+            with st.expander("Other AI-generated question candidates (Model A)"):
                 for i, cand in enumerate(gen_data["candidates"], 1):
                     st.markdown(f"**{i}.** {cand['question']}  "
                                 f"*(score: {cand['score']:.3f})*")
@@ -399,7 +399,7 @@ elif st.session_state.current_screen == "quiz_view":
 
         # Model A prediction confidence chart
         if verify_result:
-            with st.expander("🤖 Model A Prediction (expand to peek)", expanded=False):
+            with st.expander("Model A Prediction (expand to peek)", expanded=False):
                 probs     = verify_result.get("probabilities", {})
                 predicted = verify_result.get("predicted", "")
                 fig = px.bar(
@@ -425,7 +425,7 @@ elif st.session_state.current_screen == "quiz_view":
 
             col_check, col_hint = st.columns([2, 1])
             with col_check:
-                if st.button("✅ Check Answer", type="primary",
+                if st.button("Check Answer", type="primary",
                              use_container_width=True):
                     st.session_state.checked = True
                     correct_l    = st.session_state.correct_label
@@ -446,7 +446,7 @@ elif st.session_state.current_screen == "quiz_view":
                     })
                     st.rerun()
             with col_hint:
-                if st.button("💡 Get a Hint", use_container_width=True):
+                if st.button("Get a Hint", use_container_width=True):
                     st.session_state.current_screen = "hint_panel"
                     st.rerun()
 
@@ -460,13 +460,13 @@ elif st.session_state.current_screen == "quiz_view":
                 if label == correct_l:
                     st.markdown(f"""
                     <div class="correct-answer">
-                        ✅ <strong>{label}: {text}</strong> — Correct Answer
+                        <strong>{label}: {text}</strong> - Correct Answer
                     </div>
                     """, unsafe_allow_html=True)
                 elif label == user_ans and not user_correct:
                     st.markdown(f"""
                     <div class="wrong-answer">
-                        ❌ <strong>{label}: {text}</strong> — Your Answer
+                        <strong>{label}: {text}</strong> - Your Answer
                     </div>
                     """, unsafe_allow_html=True)
                 else:
@@ -474,13 +474,13 @@ elif st.session_state.current_screen == "quiz_view":
                 st.markdown("")
 
             if user_correct:
-                st.success("🎉 Correct! Well done.")
+                st.success("Correct! Well done.")
             else:
-                st.error(f"❌ Incorrect. Correct answer: **({correct_l}) {correct_text}**")
+                st.error(f"Incorrect. Correct answer: **({correct_l}) {correct_text}**")
             
             # Simple explanation text generated by using our strongest hint (Hint 3)
             if st.session_state.hints and len(st.session_state.hints) >= 3:
-                with st.expander("📝 View Explanation", expanded=True):
+                with st.expander("View Explanation", expanded=True):
                     st.info(f"**Explanation extracted from passage:**\n\"{st.session_state.hints[2]}\"")
 
             if verify_result:
@@ -494,7 +494,7 @@ elif st.session_state.current_screen == "quiz_view":
                           delta="✓ Correct" if model_right else "✗ Wrong",
                           delta_color="normal" if model_right else "inverse")
 
-            with st.expander("🎭 Model B — Generated Distractors"):
+            with st.expander("Model B - Generated Distractors"):
                 distractors = st.session_state.distractors or []
                 if distractors:
                     for i, d in enumerate(distractors, 1):
@@ -502,7 +502,7 @@ elif st.session_state.current_screen == "quiz_view":
                 else:
                     st.info("No distractors generated.")
 
-            if st.button("➡️ Next Question", use_container_width=True,
+            if st.button("Next Question", use_container_width=True,
                          type="primary"):
                 for k in ("checked", "user_answer", "hints_revealed",
                           "answer_revealed", "article", "question",
@@ -519,7 +519,7 @@ elif st.session_state.current_screen == "quiz_view":
 elif st.session_state.current_screen == "hint_panel":
     st.markdown("""
     <div class="main-header">
-        <h2>💡 Hint Panel</h2>
+        <h2>Hint Panel</h2>
         <p>Graduated hints from Model B — most general → near-explicit. Use wisely!</p>
     </div>
     """, unsafe_allow_html=True)
@@ -528,15 +528,15 @@ elif st.session_state.current_screen == "hint_panel":
     if not hints:
         st.info("No hints available. Submit an article and question first.")
     else:
-        st.subheader(f"❓ {st.session_state.question}")
+        st.subheader(f"Question: {st.session_state.question}")
         src = st.session_state.question_source
         if src == "generated":
-            st.caption("🤖 AI-Generated Question (Model A)")
+            st.caption("AI-Generated Question (Model A)")
         st.divider()
 
-        hint_labels = ["🌐 Hint 1 (General)",
-                       "🔍 Hint 2 (Specific)",
-                       "🎯 Hint 3 (Near-Explicit)"]
+        hint_labels = ["Hint 1 (General)",
+                       "Hint 2 (Specific)",
+                       "Hint 3 (Near-Explicit)"]
 
         tabs = st.tabs(hint_labels)
 
@@ -549,22 +549,22 @@ elif st.session_state.current_screen == "hint_panel":
                             st.session_state.hints_revealed = i + 1
                             st.rerun()
                 else:
-                    st.warning("🔒 *Hint locked* — reveal the previous hint first.")
+                    st.warning("Hint locked - reveal the previous hint first.")
 
         st.divider()
 
         if st.session_state.hints_revealed >= 3:
             if not st.session_state.answer_revealed:
-                if st.button("🔑 Reveal Answer", type="primary",
+                if st.button("Reveal Answer", type="primary",
                              use_container_width=True):
                     st.session_state.answer_revealed = True
                     st.rerun()
             else:
                 cl   = st.session_state.correct_label
                 ctxt = st.session_state.correct_text
-                st.success(f"✅ Answer: **({cl})** {ctxt}")
+                st.success(f"Answer: **({cl})** {ctxt}")
 
-                with st.expander("🎭 Model B — Generated Distractors"):
+                with st.expander("Model B - Generated Distractors"):
                     for i, d in enumerate(st.session_state.distractors or [], 1):
                         st.markdown(f"**Distractor {i}:** {d}")
 
@@ -575,7 +575,7 @@ elif st.session_state.current_screen == "hint_panel":
 elif st.session_state.current_screen == "analytics":
     st.markdown("""
     <div class="main-header">
-        <h2>📊 Analytics Dashboard</h2>
+        <h2>Analytics Dashboard</h2>
         <p>Model performance metrics, session stats, and inference log.</p>
     </div>
     """, unsafe_allow_html=True)
@@ -585,11 +585,11 @@ elif st.session_state.current_screen == "analytics":
     eval_path    = "models/evaluation_report.json"
 
     tab1, tab2, tab3, tab4, tab5 = st.tabs([
-        "🤖 Model A Metrics",
-        "🎭 Model B Metrics",
-        "📈 BLEU/ROUGE/METEOR",
-        "📋 Session Log",
-        "⚙️ System Info",
+        "Model A Metrics",
+        "Model B Metrics",
+        "BLEU/ROUGE/METEOR",
+        "Session Log",
+        "System Info",
     ])
 
     # ── Tab 1: Model A ─────────────────────────────────────────────────────────
@@ -643,7 +643,7 @@ elif st.session_state.current_screen == "analytics":
 
             if "question_ranker" in res_a:
                 st.subheader("Question Generation Ranker (Model A — generation sub-task)")
-                st.success("✅ Question ranker trained and available.")
+                st.success("Question ranker trained and available.")
         else:
             st.info("Train models first: `python src/train_all.py`")
 
@@ -757,7 +757,7 @@ elif st.session_state.current_screen == "analytics":
                 ("Model B — Hint",             "models/model_b/hint_scorer.pkl"),
             ]
             for name, path in model_files:
-                exists = "✅" if os.path.exists(path) else "❌"
+                exists = "Yes" if os.path.exists(path) else "No"
                 st.markdown(f"{exists} `{name}`")
 
         with col2:
@@ -771,7 +771,7 @@ elif st.session_state.current_screen == "analytics":
                 ("Evaluation report","models/evaluation_report.json"),
             ]
             for name, path in data_files:
-                exists = "✅" if os.path.exists(path) else "❌"
+                exists = "Yes" if os.path.exists(path) else "No"
                 st.markdown(f"{exists} `{name}`")
 
         st.divider()
@@ -785,6 +785,6 @@ elif st.session_state.current_screen == "analytics":
             "Evaluation":       "BLEU, ROUGE, METEOR (generation tasks); "
                                 "Accuracy/F1 (verification tasks)",
         })
-        st.caption("⚠️ This system uses AI-generated content. "
+        st.caption("This system uses AI-generated content. "
                    "All generated questions and distractors should be reviewed by a "
                    "human instructor before use in real assessments.")
