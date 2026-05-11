@@ -13,8 +13,13 @@ def run_step(name, script):
     print(f"  {name}")
     print(f"{'='*60}")
     t0 = time.time()
-    # Run in same Python process by importing
-    result = subprocess.run([sys.executable, script], check=True)
+    # Run the target as a module (python -m) so package imports like
+    # `from src.x import ...` work when subprocess spawns a new interpreter.
+    if script.endswith('.py'):
+        module = script[:-3].replace('/', '.').replace('\\', '.')
+    else:
+        module = script
+    result = subprocess.run([sys.executable, '-m', module], check=True)
     elapsed = time.time() - t0
     print(f"\n  ✓ Completed in {elapsed:.1f}s")
     return result
